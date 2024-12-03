@@ -1,7 +1,5 @@
 package io.gravitee.secrets.api.discovery;
 
-import java.util.Map;
-
 /**
  * Finds locations (fields/configurations) that can contain secret references and notifies a {@link DefinitionSecretRefsListener}
  * @param <T> the type of definition
@@ -18,11 +16,12 @@ public interface DefinitionSecretRefsFinder<T> {
 
     /**
      * Return a description of the definition to be used when checking ACLs
+     *
      * @param definition the definition object to analyse
-     * @param metadata additional properties related to the definition
+     * @param metadata   additional properties related to the definition
      * @return a descriptor of the definition
      */
-    DefinitionDescriptor toDefinitionDescriptor(T definition, Map<String, String> metadata);
+    DefinitionDescriptor toDefinitionDescriptor(T definition, DefinitionMetadata metadata);
 
     /**
      * This method searches in <code>definition</code> for location (fields/configurations) possibly containing secret refs
