@@ -1,7 +1,7 @@
 package io.gravitee.secrets.api.spec;
 
 import io.gravitee.common.utils.IdGenerator;
-import io.gravitee.node.api.secrets.model.SecretURL;
+import io.gravitee.secrets.api.core.SecretURL;
 import io.gravitee.secrets.api.el.FieldKind;
 import java.util.Objects;
 import java.util.Set;
@@ -84,7 +84,7 @@ public record SecretSpec(
      * @return the spec as a SecretURL
      */
     public SecretURL toSecretURL() {
-        return SecretURL.from(uriAndKey(), false);
+        return SecretURL.from(uriAndKey(), true);
     }
 
     /**
@@ -97,13 +97,13 @@ public record SecretSpec(
 
     /**
      * Shortcut to {@link ACLs#fieldKind()}
-     * fieldKind or null
+     * @return fieldKind or null
      */
     public FieldKind allowedFieldKind() {
         return acls != null ? acls.fieldKind() : null;
     }
     /**
-     * Shortcut to extract all allowed fields from all {@link ACLs#plugins()} }
+     * Shortcut to extract all allowed fields from all {@link ACLs#plugins()}
      * @return a non-null set of allowed fields from ACLs object.
      */
     public Set<String> allowedFields() {
