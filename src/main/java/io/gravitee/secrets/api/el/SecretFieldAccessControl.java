@@ -16,17 +16,17 @@
 package io.gravitee.secrets.api.el;
 
 /**
- * Object representing the ability for a secret to be used at runtime.
+ * Object representing the ability for a secret to be used on a given field.
  * This object is added in the EL context then removed after evaluation.
- * EL expression may use this context to allow or deny access to the secret.
+ * EL expression may use this context to allow or deny access to a secret.
  *
  * @param allowed If a secret can be resolved (true = the plugin/entity field supports secrets)
- * @param fieldKind the secret value kind admitted for this field
- * @param field the field name where the secret is used
+ * @param kind the secret value kind admitted for this field
+ * @param name the field name where the secret is used
  *
  * @author Benoit BORDIGONI (benoit.bordigoni at graviteesource.com)
  * @author GraviteeSource Team
  */
-public record RuntimeContext(boolean allowed, FieldKind fieldKind, String field) {
-    public static final String EL_VARIABLE = "runtime_secrets_context";
+public record SecretFieldAccessControl(boolean allowed, FieldKind kind, String name) {
+    public static final String EL_VARIABLE = "secret_field_access_control_var";
 }
