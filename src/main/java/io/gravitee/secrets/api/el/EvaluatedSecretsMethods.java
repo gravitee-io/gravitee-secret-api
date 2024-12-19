@@ -16,6 +16,8 @@
 package io.gravitee.secrets.api.el;
 
 import io.gravitee.secrets.api.spec.SecretSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Define methods that are called as an EL to resolve secrets.
@@ -23,6 +25,37 @@ import io.gravitee.secrets.api.spec.SecretSpec;
  * @author GraviteeSource Team
  */
 public interface EvaluatedSecretsMethods {
+    Logger DEFAULT_METHODS_LOGGER = LoggerFactory.getLogger(EvaluatedSecretsMethods.class);
+    String SECRETS_FEATURE_DISABLED = "[secrets feature disabled]";
+    String DISABLED_ERROR_MESSAGE =
+        "gravitee-en-secrets feature is required to be in you license to use EL {#secret.get(...)}. " +
+        "Check the plugin 'service-secrets' is part of your Gravitee distribution." +
+        "'" +
+        SECRETS_FEATURE_DISABLED +
+        "' has been return instead";
+
+    /**
+     * This is called when the user entered a secret ref that is not processed
+     * because the plugin is absent or the feature missing in the license
+     * @param nameOrUri user configured name or uri
+     * @param key user configured key
+     * @return a string signaling that the feature is disabled
+     */
+    default String get(String nameOrUri, String key) {
+        return get(nameOrUri);
+    }
+
+    /**
+     *This is called when the user entered a secret ref that is not processed
+     * because the plugin is absent or the feature missing in the license
+     * @param nameOrUri user configured name or uri
+     * @return a string signaling that the feature is disabled
+     */
+    default String get(String nameOrUri) {
+        DEFAULT_METHODS_LOGGER.error(DISABLED_ERROR_MESSAGE);
+        return SECRETS_FEATURE_DISABLED;
+    }
+
     /**
      * Pulls an already resolved secret from the cache only if has been is granted to be used in the context it was discovered into.
      * The discovery context id used a token to check the secret was granted.
