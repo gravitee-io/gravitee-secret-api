@@ -18,6 +18,7 @@ package io.gravitee.secrets.api.spec;
 import io.gravitee.common.utils.IdGenerator;
 import io.gravitee.secrets.api.core.SecretURL;
 import io.gravitee.secrets.api.el.FieldKind;
+import io.gravitee.secrets.api.event.SecretDiscoveryEventType;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ import org.springframework.util.StringUtils;
  * @param onErrorStrategy
  * @param acls            access control list: where in definitions secrets are allowed to be resolved
  * @param envId           mandatory environment ID in which this definition applies
- * @param publishEventOnValueChanged  if true, the secret will trigger a reload of the definition when it changes
+ * @param publishEventOnValueChanged  if true, the secret will trigger a {@link SecretDiscoveryEventType#VALUE_CHANGED} event of the definition when it's value changes.
  * @param renewable       if true, the secret can be renewed by `renewal.enabled` configuration
  * @author Benoit BORDIGONI (benoit.bordigoni at graviteesource.com)
  * @author GraviteeSource Team
