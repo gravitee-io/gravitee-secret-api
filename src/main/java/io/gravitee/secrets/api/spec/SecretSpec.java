@@ -43,6 +43,8 @@ import org.springframework.util.StringUtils;
  * @param onErrorStrategy
  * @param acls            access control list: where in definitions secrets are allowed to be resolved
  * @param envId           mandatory environment ID in which this definition applies
+ * @param publishEventOnValueChanged  if true, the secret will trigger a reload of the definition when it changes
+ * @param renewable       if true, the secret can be renewed by `renewal.enabled` configuration
  * @author Benoit BORDIGONI (benoit.bordigoni at graviteesource.com)
  * @author GraviteeSource Team
  * @see Resolution
@@ -58,7 +60,9 @@ public record SecretSpec(
     Resolution resolution,
     OnErrorStrategy onErrorStrategy,
     ACLs acls,
-    String envId
+    String envId,
+    boolean publishEventOnValueChanged,
+    boolean renewable
 ) {
     public SecretSpec {
         boolean ok = isGenerated ^ StringUtils.hasText(id);
@@ -87,11 +91,11 @@ public record SecretSpec(
     }
 
     /**
-     * Return uri and key concatenated as specified in {@link SecretSpec#formatUriAndKey(String, String)}
+     * Return uri and key concatenated as specified in {@link SecretSpec#formatUriAndKeyAndParams(String, String, boolean, boolean)}
      * @return a string concat of uri and key
      */
-    public String uriAndKey() {
-        return formatUriAndKey(uri, key);
+    public String uriAndKeyAndParams() {
+        return formatUriAndKeyAndParams(uri, key, renewable, publishEventOnValueChanged);
     }
 
     /**
@@ -99,7 +103,7 @@ public record SecretSpec(
      * @return the spec as a SecretURL
      */
     public SecretURL toSecretURL() {
-        return SecretURL.from(uriAndKey(), true);
+        return SecretURL.from(uriAndKeyAndParams(), true);
     }
 
     /**
@@ -154,11 +158,21 @@ public record SecretSpec(
     /**
      * @return main uri and optionally key concat with {@link SecretURL#URI_KEY_SEPARATOR}
      */
-    public static String formatUriAndKey(String uri, String key) {
-        if (key == null) {
-            return uri;
+    public static String formatUriAndKeyAndParams(String uri, String key, boolean renewable, boolean publishEventOnValueChanged) {
+        String urikey = uri;
+        StringBuilder params = new StringBuilder();
+        if (renewable) {
+            params.append("?");
+            params.append("renewable=true");
         }
-        return uri.concat(SecretURL.URI_KEY_SEPARATOR).concat(key);
+        if (publishEventOnValueChanged) {
+            params.append(params.isEmpty() ? "?" : "&");
+            params.append("reloadOnChange=true");
+        }
+        if (key != null) {
+            urikey = urikey.concat(SecretURL.URI_KEY_SEPARATOR).concat(key);
+        }
+        return urikey.concat(params.toString());
     }
 
     /*
