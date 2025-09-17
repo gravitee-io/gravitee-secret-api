@@ -71,7 +71,7 @@ class SecretSpecTest {
         String envId
     ) {
         Assertions
-            .assertThatCode(() -> new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId))
+            .assertThatCode(() -> new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId, false, false))
             .doesNotThrowAnyException();
     }
 
@@ -116,14 +116,14 @@ class SecretSpecTest {
         String envId
     ) {
         Assertions
-            .assertThatCode(() -> new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId))
+            .assertThatCode(() -> new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId, false, false))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void should_return_correct_values() {
-        SecretSpec spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev");
-        Assertions.assertThat(spec.uriAndKey()).isEqualTo("/foo/bar:baz");
+        SecretSpec spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", false, false);
+        Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz");
         Assertions.assertThat(spec.asSimpleString()).isEqualTo("/foo/bar");
         Assertions.assertThat(spec.allowedFieldKind()).isNull();
         Assertions.assertThat(spec.allowedFields()).isEmpty();
@@ -148,7 +148,9 @@ class SecretSpecTest {
                         new ACLs.PluginACL("plugin4", null)
                     )
                 ),
-                "dev"
+                "dev",
+                false,
+                false
             );
         Assertions.assertThat(spec.asSimpleString()).isEqualTo("bonnie");
         Assertions.assertThatCode(spec::toSecretURL).doesNotThrowAnyException();
@@ -160,5 +162,21 @@ class SecretSpecTest {
         Assertions.assertThat(spec.allowedFieldKind()).isEqualTo(FieldKind.GENERIC);
         Assertions.assertThat(spec.allowedFields()).containsExactlyInAnyOrder("foo", "bar");
         Assertions.assertThat(spec.hasResolutionType(Resolution.Type.POLL)).isTrue();
+    }
+
+    @Test
+    void should_return_correct_values_with_params() {
+        SecretSpec spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", false, true);
+        Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz?renewable=true");
+
+        spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", true, false);
+        Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz?reloadOnChange=true");
+
+        spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", true, true);
+        Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz?renewable=true&reloadOnChange=true");
+        Assertions
+            .assertThat(spec.toSecretURL().query().asMap())
+            .containsEntry("reloadOnChange", List.of("true"))
+            .containsEntry("renewable", List.of("true"));
     }
 }

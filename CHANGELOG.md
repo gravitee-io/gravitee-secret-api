@@ -1,3 +1,18 @@
+# [2.0.0-alpha.1](https://github.com/gravitee-io/gravitee-secret-api/compare/1.0.0...2.0.0-alpha.1) (2025-08-13)
+
+
+### Features
+
+* add new VALUE_CHANGED event ([c30b7c6](https://github.com/gravitee-io/gravitee-secret-api/commit/c30b7c6b18b56fa61906d12f4b1a709db14fa7ca))
+* add reloadOnChange & renewable to SecretSpec ([276cca1](https://github.com/gravitee-io/gravitee-secret-api/commit/276cca1ae24c0c1d66beead2aac51ed7352ba208))
+
+
+### BREAKING CHANGES
+
+* - Add 2 options to SecretSpec `publishEventOnValueChanged` & `renewable`
+- `formatUriAndKeyAndParams` should be used instead of `formatUriAndKey`
+- `uriAndKeyAndParams` should be used instead of `uriAndKey`
+
 # 1.0.0 (2024-12-30)
 
 
