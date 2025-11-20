@@ -34,7 +34,7 @@
 
     <properties>
         <!-- Gravitee -->
-        <gravitee-bom.version>8.3.46</gravitee-bom.version>
+        <gravitee-bom.version>8.3.47</gravitee-bom.version>
         <gravitee-common.version>4.7.3</gravitee-common.version>
         <!-- Third party -->
         <awaitability.version>4.3.0</awaitability.version>
