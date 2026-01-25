@@ -15,6 +15,8 @@
  */
 package io.gravitee.secrets.api.el;
 
+import io.gravitee.el.spel.context.DeferredFunctionHolder;
+import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -24,22 +26,22 @@ import lombok.RequiredArgsConstructor;
  * @author GraviteeSource Team
  */
 @RequiredArgsConstructor
-public class DelegatingEvaluatedSecretsMethods implements EvaluatedSecretsMethods {
+public class DelegatingEvaluatedSecretsMethods implements EvaluatedSecretsMethods, DeferredFunctionHolder {
 
     private final EvaluatedSecretsMethods delegate;
 
     @Override
-    public String fromGrant(String contextId, SecretFieldAccessControl secretFieldAccessControl) {
+    public Single<String> fromGrant(String contextId, SecretFieldAccessControl secretFieldAccessControl) {
         return delegate.fromGrant(contextId, secretFieldAccessControl);
     }
 
     @Override
-    public String fromGrant(String contextId, String secretKey, SecretFieldAccessControl secretFieldAccessControl) {
+    public Single<String> fromGrant(String contextId, String secretKey, SecretFieldAccessControl secretFieldAccessControl) {
         return delegate.fromGrant(contextId, secretKey, secretFieldAccessControl);
     }
 
     @Override
-    public String fromEL(String contextId, String uriOrName, SecretFieldAccessControl secretFieldAccessControl) {
+    public Single<String> fromEL(String contextId, String uriOrName, SecretFieldAccessControl secretFieldAccessControl) {
         return delegate.fromEL(contextId, uriOrName, secretFieldAccessControl);
     }
 }
