@@ -220,4 +220,29 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
         public static final String NAMESPACE = "namespace";
         public static final String RESOLVE_BEFORE_WATCH = "resolveBeforeWatch";
     }
+
+    /**
+     * Equality based on provider and path only.
+     * @param o   the reference object with which to compare.
+     * @return true if this object is the same as the object argument; false otherwise.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SecretURL other)) {
+            return false;
+        }
+        return Objects.equals(provider, other.provider) && Objects.equals(path, other.path);
+    }
+
+    /**
+     * Hash code based on provider and path only.
+     * @return a hash code value for this object.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(provider, path);
+    }
 }
