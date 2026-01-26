@@ -29,7 +29,7 @@
 
     <groupId>io.gravitee.secret</groupId>
     <artifactId>gravitee-secret-api</artifactId>
-    <version>3.0.0-archi-644-full-reactive-support-SNAPSHOT</version>
+    <version>3.0.0</version>
     <name>Gravitee.io - Secret API</name>
 
     <properties>
