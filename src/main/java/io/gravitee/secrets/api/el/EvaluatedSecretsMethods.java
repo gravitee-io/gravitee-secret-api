@@ -16,6 +16,7 @@
 package io.gravitee.secrets.api.el;
 
 import io.gravitee.secrets.api.spec.SecretSpec;
+import io.reactivex.rxjava3.core.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public interface EvaluatedSecretsMethods {
      * @param secretFieldAccessControl caller of this EL may pass this to describe the field to access control can be performed.
      * @return the secret or an empty string depending on {@link SecretSpec#onErrorStrategy()}
      */
-    String fromGrant(String contextId, SecretFieldAccessControl secretFieldAccessControl);
+    Single<String> fromGrant(String contextId, SecretFieldAccessControl secretFieldAccessControl);
 
     /**
      * Pulls an already resolved secret from the cache only if has been is granted to be used in the context it was discovered into.
@@ -73,7 +74,7 @@ public interface EvaluatedSecretsMethods {
      * @param secretFieldAccessControl caller of this EL may pass this to describe the field to access control can be performed.
      * @return the secret or an empty string depending on {@link SecretSpec#onErrorStrategy()}
      */
-    String fromGrant(String contextId, String secretKey, SecretFieldAccessControl secretFieldAccessControl);
+    Single<String> fromGrant(String contextId, String secretKey, SecretFieldAccessControl secretFieldAccessControl);
 
     /**
      * Finds or generate (for URIs) a spec from <code>uriOrName</code>.
@@ -86,5 +87,5 @@ public interface EvaluatedSecretsMethods {
      * @param secretFieldAccessControl caller of this EL may pass this to describe the field to access control can be performed.
      * @return the secret or an empty string depending on {@link SecretSpec#onErrorStrategy()}
      */
-    String fromEL(String contextId, String uriOrName, SecretFieldAccessControl secretFieldAccessControl);
+    Single<String> fromEL(String contextId, String uriOrName, SecretFieldAccessControl secretFieldAccessControl);
 }

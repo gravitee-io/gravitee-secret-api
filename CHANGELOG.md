@@ -1,3 +1,49 @@
+# [3.0.0](https://github.com/gravitee-io/gravitee-secret-api/compare/2.0.0...3.0.0) (2026-01-26)
+
+
+### Features
+
+* make EL evaluation full reactive ([c210c28](https://github.com/gravitee-io/gravitee-secret-api/commit/c210c2871a8854cbde068e7d512f45bc282a4005))
+
+
+### BREAKING CHANGES
+
+* implementations of TemplateVariableProvider for secrets MUST
+move to full reactive implementation switching from String to Single<String>.
+This ensure the EL evaluation is fully non-blocking.
+
+https://gravitee.atlassian.net/browse/ARCHI-644
+
+# [2.0.0](https://github.com/gravitee-io/gravitee-secret-api/compare/1.0.0...2.0.0) (2025-09-17)
+
+
+### Features
+
+* add new VALUE_CHANGED event ([3ff3054](https://github.com/gravitee-io/gravitee-secret-api/commit/3ff3054ea9a41d55d2570c659c446468bbe8b74f))
+* add reloadOnChange & renewable to SecretSpec ([d14d8f9](https://github.com/gravitee-io/gravitee-secret-api/commit/d14d8f9647273a7030cb0fa61b9f9ab8d86c79dd))
+
+
+### BREAKING CHANGES
+
+* - Add 2 options to SecretSpec `publishEventOnValueChanged` & `renewable`
+- `formatUriAndKeyAndParams` should be used instead of `formatUriAndKey`
+- `uriAndKeyAndParams` should be used instead of `uriAndKey`
+
+# [2.0.0-alpha.1](https://github.com/gravitee-io/gravitee-secret-api/compare/1.0.0...2.0.0-alpha.1) (2025-08-13)
+
+
+### Features
+
+* add new VALUE_CHANGED event ([c30b7c6](https://github.com/gravitee-io/gravitee-secret-api/commit/c30b7c6b18b56fa61906d12f4b1a709db14fa7ca))
+* add reloadOnChange & renewable to SecretSpec ([276cca1](https://github.com/gravitee-io/gravitee-secret-api/commit/276cca1ae24c0c1d66beead2aac51ed7352ba208))
+
+
+### BREAKING CHANGES
+
+* - Add 2 options to SecretSpec `publishEventOnValueChanged` & `renewable`
+- `formatUriAndKeyAndParams` should be used instead of `formatUriAndKey`
+- `uriAndKeyAndParams` should be used instead of `uriAndKey`
+
 # 1.0.0 (2024-12-30)
 
 

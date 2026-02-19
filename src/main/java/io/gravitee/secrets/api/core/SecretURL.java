@@ -18,10 +18,7 @@ package io.gravitee.secrets.api.core;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.AccessLevel;
@@ -66,6 +63,9 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
      */
     public static SecretURL from(String url, boolean isURI) {
         url = Objects.requireNonNull(url).trim();
+        if (url.startsWith("#")) {
+            return new SecretURL("dynamic-el", url, null, MultimapBuilder.hashKeys().arrayListValues().build(), isURI);
+        }
         if (!isURI && !url.startsWith(SCHEME)) {
             throwFormatError(url);
         }
@@ -77,7 +77,7 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
 
         String provider = schemeLess.substring(0, firstSlash).trim();
         int questionMarkPos = schemeLess.indexOf('?');
-        if (questionMarkPos == firstSlash + 1) {
+        if (questionMarkPos >= 0 && questionMarkPos <= firstSlash + 1) {
             throwFormatError(url);
         }
 
@@ -166,7 +166,13 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
     public boolean queryParamExists(String name) {
         return query.containsKey(name);
     }
+    public boolean isExistenceCheck() {
+        return queryParamExists(WellKnownQueryParam.EXISTS);
+    }
 
+    public Optional<String> getFallback() {
+        return query().get(WellKnownQueryParam.FALLBACK).stream().findFirst();
+    }
     /**
      * Search query string param of given <code>name</code>  with case-insensitive <code>value</code>
      * @param name query param name
@@ -219,5 +225,32 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
         public static final String KEYMAP = "keymap";
         public static final String NAMESPACE = "namespace";
         public static final String RESOLVE_BEFORE_WATCH = "resolveBeforeWatch";
+        public static final String EXISTS = "exists";
+        public static final String FALLBACK = "fallback";
+    }
+
+    /**
+     * Equality based on provider and path only.
+     * @param o   the reference object with which to compare.
+     * @return true if this object is the same as the object argument; false otherwise.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SecretURL other)) {
+            return false;
+        }
+        return Objects.equals(provider, other.provider) && Objects.equals(path, other.path);
+    }
+
+    /**
+     * Hash code based on provider and path only.
+     * @return a hash code value for this object.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(provider, path);
     }
 }
