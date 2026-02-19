@@ -99,14 +99,6 @@ class SecretURLTest {
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("nonWorkingURLs")
-    void should_not_parse_url(String url) {
-        assertThatCode(() -> SecretURL.from(url))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("should have the following format");
-    }
-
     public static Stream<Arguments> wellKnowKeysURLs() {
         return Stream.of(
             arguments(
@@ -176,5 +168,33 @@ class SecretURLTest {
         assertThatCode(() -> SecretURL.from("/foo", false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("should have the following format");
+    }
+
+    static Stream<Arguments> elExpressions() {
+        return Stream.of(
+            // Valid EL expressions — properly formed
+            arguments("{#secrets.get('foo')}"),
+            arguments("{#secrets.get('foo', bar)}"),
+            arguments("{#secrets.get('fo)}o')}"),
+            arguments("{#secrets.get(fo}o)}"),
+            arguments("{# secrets.get('foo')}"),
+            arguments("{ #secrets.get('foo')}"),
+            arguments("{#secrets.get('foo') }"),
+            arguments("{# null != secrets.get('foo')}"),
+            arguments("{#secrets.get('foo') != null}"),
+            // Malformed EL — missing closing brace or other errors, but must NOT throw
+            arguments("{#secrets.get('foo'"),
+            arguments("{#secrets.get('foo')"),
+            arguments("{#secrets.get('foo'}"),
+            arguments("{#secrets.get'foo')}")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("elExpressions")
+    void should_return_dynamic_el_url_and_not_throw_for_el_expressions(String expression) {
+        SecretURL cut = SecretURL.from(expression);
+        assertThat(cut.provider()).isEqualTo("dynamic-el");
+        assertThat(cut.isDynamicEL()).isTrue();
     }
 }

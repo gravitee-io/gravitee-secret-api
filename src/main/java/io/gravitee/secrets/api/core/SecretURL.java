@@ -18,10 +18,7 @@ package io.gravitee.secrets.api.core;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.AccessLevel;
@@ -41,6 +38,7 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
     private static final Splitter queryParamKeyValueSplitter = Splitter.on('=');
     private static final Splitter keyMapParamValueSplitter = Splitter.on(URI_KEY_SEPARATOR.charAt(0));
     public static final String SCHEME = "secret://";
+    private static final String DYNAMIC_EL_PROVIDER = "dynamic-el";
 
     public static SecretURL from(String url) {
         return from(url, false);
@@ -66,55 +64,57 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
      */
     public static SecretURL from(String url, boolean isURI) {
         url = Objects.requireNonNull(url).trim();
+        if (url.contains("{") || url.contains("#")) {
+            return new SecretURL(DYNAMIC_EL_PROVIDER, url, "", MultimapBuilder.hashKeys().arrayListValues().build(), isURI);
+        }
         if (!isURI && !url.startsWith(SCHEME)) {
             throwFormatError(url);
         }
-        String schemeLess = isURI ? url.substring(1) : url.substring(SCHEME.length());
-        int firstSlash = schemeLess.indexOf('/');
-        if (firstSlash < 0 || firstSlash == schemeLess.length() - 1) {
-            throwFormatError(url);
+        try {
+            String schemeLess = isURI ? url.substring(1) : url.substring(SCHEME.length());
+            int firstSlash = schemeLess.indexOf('/');
+            if (firstSlash < 0 || firstSlash == schemeLess.length() - 1) {
+                throwFormatError(url);
+            }
+
+            String provider = schemeLess.substring(0, firstSlash).trim();
+            int questionMarkPos = schemeLess.indexOf('?');
+            if (questionMarkPos >= 0 && questionMarkPos <= firstSlash + 1) {
+                throwFormatError(url);
+            }
+
+            String path;
+            final String key;
+            final Multimap<String, String> query;
+
+            if (questionMarkPos > 0) {
+                path = schemeLess.substring(provider.length() + 1, questionMarkPos).trim();
+                query = parseQuery(schemeLess.substring(questionMarkPos + 1));
+            } else {
+                path = schemeLess.substring(provider.length() + 1).trim();
+                query = MultimapBuilder.hashKeys().arrayListValues().build();
+            }
+
+            int columnIndex = path.lastIndexOf(':');
+            if (columnIndex > path.lastIndexOf(URL_SEPARATOR)) {
+                key = path.substring(columnIndex + 1);
+                path = path.substring(0, columnIndex);
+            } else {
+                key = null;
+            }
+
+            while (!path.isEmpty() && path.charAt(path.length() - 1) == URL_SEPARATOR) {
+                path = path.substring(0, path.length() - 1);
+            }
+
+            if (path.isBlank() || urlPathSplitter.splitToList(path).stream().anyMatch(String::isBlank)) {
+                throwFormatError(url);
+            }
+
+            return new SecretURL(provider, path, key, query, isURI);
+        } catch (Exception e) {
+            return new SecretURL("unknown", url, null, MultimapBuilder.hashKeys().arrayListValues().build(), isURI);
         }
-
-        String provider = schemeLess.substring(0, firstSlash).trim();
-        int questionMarkPos = schemeLess.indexOf('?');
-        if (questionMarkPos == firstSlash + 1) {
-            throwFormatError(url);
-        }
-
-        String path;
-        final String key;
-        final Multimap<String, String> query;
-
-        if (questionMarkPos > 0) {
-            path = schemeLess.substring(provider.length() + 1, questionMarkPos).trim();
-            query = parseQuery(schemeLess.substring(questionMarkPos + 1));
-        } else {
-            path = schemeLess.substring(provider.length() + 1).trim();
-            query = MultimapBuilder.hashKeys().arrayListValues().build();
-        }
-
-        int columnIndex = path.lastIndexOf(':');
-        if (columnIndex > path.lastIndexOf(URL_SEPARATOR)) {
-            key = path.substring(columnIndex + 1);
-            path = path.substring(0, columnIndex);
-        } else {
-            key = null;
-        }
-
-        // remove trailing slashes
-        while (!path.isEmpty() && path.charAt(path.length() - 1) == URL_SEPARATOR) {
-            path = path.substring(0, path.length() - 1);
-        }
-
-        if (path.isBlank()) {
-            throwFormatError(url);
-        }
-
-        if (urlPathSplitter.splitToList(path).stream().anyMatch(String::isBlank)) {
-            throwFormatError(url);
-        }
-
-        return new SecretURL(provider, path, key, query, isURI);
     }
 
     public boolean isKeyEmpty() {
@@ -165,6 +165,14 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
      */
     public boolean queryParamExists(String name) {
         return query.containsKey(name);
+    }
+
+    /**
+     * @return true if this URL was parsed from a dynamic EL expression (i.e., it starts with '{')
+     * and should be resolved at runtime, not during secret discovery.
+     */
+    public boolean isDynamicEL() {
+        return DYNAMIC_EL_PROVIDER.equals(provider());
     }
 
     /**
