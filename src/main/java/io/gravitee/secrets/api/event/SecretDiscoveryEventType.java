@@ -31,4 +31,9 @@ public enum SecretDiscoveryEventType {
      * definition to perform clean-up and evictions
      */
     REVOKE,
+    /**
+     * Event type emitted when a secret value has changed
+     * and needs to be updated in the definition
+     */
+    VALUE_CHANGED,
 }
