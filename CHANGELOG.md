@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/gravitee-io/gravitee-secret-api/compare/3.0.0...3.1.0) (2026-09-18)
+
+
+### Features
+
+* add an EL accessor for a value referenced from a secret field ([#35](https://github.com/gravitee-io/gravitee-secret-api/issues/35)) ([2a27b59](https://github.com/gravitee-io/gravitee-secret-api/commit/2a27b59c08cb6e0f68d36de8669b519a40b17238))
+
 # [3.0.0](https://github.com/gravitee-io/gravitee-secret-api/compare/2.0.0...3.0.0) (2026-01-26)
 
 
