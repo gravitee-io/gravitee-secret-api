@@ -36,6 +36,8 @@ public interface WithExpiration {
      * @return true if there is an expiration set and it has expired
      */
     default boolean isExpired() {
-        return expiresAt().map(instant -> Instant.now().isAfter(instant)).orElse(false);
+        return expiresAt()
+            .map(instant -> Instant.now().isAfter(instant))
+            .orElse(false);
     }
 }

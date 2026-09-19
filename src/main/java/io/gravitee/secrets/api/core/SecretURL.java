@@ -124,9 +124,9 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
     private static void throwFormatError(String url) {
         throw new IllegalArgumentException(
             "Secret URL '%s' should have the following format %s<provider>/<path or name>[:<key>][?option=value1&option=value2]".formatted(
-                    url,
-                    SCHEME
-                )
+                url,
+                SCHEME
+            )
         );
     }
 
@@ -174,7 +174,10 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
      * @return true if name and value is found
      */
     public boolean queryParamEqualsIgnoreCase(@Nonnull String name, String value) {
-        return query().entries().stream().anyMatch(e -> Objects.equals(e.getKey(), name) && e.getValue().equalsIgnoreCase(value));
+        return query()
+            .entries()
+            .stream()
+            .anyMatch(e -> Objects.equals(e.getKey(), name) && e.getValue().equalsIgnoreCase(value));
     }
 
     /**

@@ -26,11 +26,13 @@ import org.springframework.util.StringUtils;
  */
 public record SecretRefsLocation(String kind, String id) {
     public static final String PLUGIN_KIND = "plugin";
+
     public SecretRefsLocation {
         boolean ok = StringUtils.hasText(kind) && StringUtils.hasText(id);
         if (!ok) {
             throw new IllegalArgumentException("secret refs location must have a kind and an id");
         }
     }
+
     public static final SecretRefsLocation NOWHERE = new SecretRefsLocation("_", "_");
 }
