@@ -27,7 +27,7 @@ import java.time.Duration;
  */
 public record Resolution(Type type, Duration duration) {
     public Resolution {
-        boolean ok = type == Type.ONCE || duration != null && duration.toMillis() > 0;
+        boolean ok = type == Type.ONCE || (duration != null && duration.toMillis() > 0);
         if (!ok) {
             throw new IllegalArgumentException("resolution lacks positive duration for type %s".formatted(type));
         }

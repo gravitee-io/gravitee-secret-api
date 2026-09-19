@@ -70,9 +70,9 @@ class SecretSpecTest {
         boolean generated,
         String envId
     ) {
-        Assertions
-            .assertThatCode(() -> new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId, false, false))
-            .doesNotThrowAnyException();
+        Assertions.assertThatCode(() ->
+            new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId, false, false)
+        ).doesNotThrowAnyException();
     }
 
     public static Stream<Arguments> nokSpecs() {
@@ -115,9 +115,9 @@ class SecretSpecTest {
         boolean generated,
         String envId
     ) {
-        Assertions
-            .assertThatCode(() -> new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId, false, false))
-            .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatCode(() ->
+            new SecretSpec(id, name, uri, key, elKey, generated, null, null, null, envId, false, false)
+        ).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -128,30 +128,29 @@ class SecretSpecTest {
         Assertions.assertThat(spec.allowedFieldKind()).isNull();
         Assertions.assertThat(spec.allowedFields()).isEmpty();
         Assertions.assertThat(spec.hasResolutionType(Resolution.Type.ONCE)).isTrue();
-        spec =
-            new SecretSpec(
+        spec = new SecretSpec(
+            null,
+            "bonnie",
+            "/foo/bar",
+            "baz",
+            STATIC_KEY,
+            GENERATED,
+            new Resolution(Resolution.Type.POLL, Duration.ofSeconds(1)),
+            null,
+            new ACLs(
+                FieldKind.GENERIC,
                 null,
-                "bonnie",
-                "/foo/bar",
-                "baz",
-                STATIC_KEY,
-                GENERATED,
-                new Resolution(Resolution.Type.POLL, Duration.ofSeconds(1)),
-                null,
-                new ACLs(
-                    FieldKind.GENERIC,
-                    null,
-                    List.of(
-                        new ACLs.PluginACL("plugin1", List.of("foo")),
-                        new ACLs.PluginACL("plugin2", List.of("bar")),
-                        new ACLs.PluginACL("plugin3", List.of()),
-                        new ACLs.PluginACL("plugin4", null)
-                    )
-                ),
-                "dev",
-                false,
-                false
-            );
+                List.of(
+                    new ACLs.PluginACL("plugin1", List.of("foo")),
+                    new ACLs.PluginACL("plugin2", List.of("bar")),
+                    new ACLs.PluginACL("plugin3", List.of()),
+                    new ACLs.PluginACL("plugin4", null)
+                )
+            ),
+            "dev",
+            false,
+            false
+        );
         Assertions.assertThat(spec.asSimpleString()).isEqualTo("bonnie");
         Assertions.assertThatCode(spec::toSecretURL).doesNotThrowAnyException();
         Assertions.assertThat(spec.toSecretURL().provider()).isEqualTo("foo");
@@ -174,8 +173,7 @@ class SecretSpecTest {
 
         spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", true, true);
         Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz?renewable=true&reloadOnChange=true");
-        Assertions
-            .assertThat(spec.toSecretURL().query().asMap())
+        Assertions.assertThat(spec.toSecretURL().query().asMap())
             .containsEntry("reloadOnChange", List.of("true"))
             .containsEntry("renewable", List.of("true"));
     }

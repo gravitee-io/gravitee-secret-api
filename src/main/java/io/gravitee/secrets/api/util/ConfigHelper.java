@@ -80,10 +80,10 @@ public class ConfigHelper {
         }
         throw new IllegalArgumentException(
             "Invalid value for %s: %s. Possible values: '%s'".formatted(
-                    propertyName,
-                    literal,
-                    values.stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.joining("', '"))
-                )
+                propertyName,
+                literal,
+                values.stream().map(Enum::name).map(String::toLowerCase).collect(Collectors.joining("', '"))
+            )
         );
     }
 

@@ -122,6 +122,7 @@ public record SecretSpec(
     public FieldKind allowedFieldKind() {
         return acls != null ? acls.fieldKind() : null;
     }
+
     /**
      * Shortcut to extract all allowed fields from all {@link ACLs#plugins()}
      * @return a non-null set of allowed fields from ACLs object.
