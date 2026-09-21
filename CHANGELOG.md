@@ -1,3 +1,16 @@
+# [4.0.0](https://github.com/gravitee-io/gravitee-secret-api/compare/3.1.0...4.0.0) (2026-09-21)
+
+
+* chore(deps)!: move to the gravitee orb 5 and parent 23 ([ea19104](https://github.com/gravitee-io/gravitee-secret-api/commit/ea19104dcf50c06bb56edfc8da7fb062571244b6))
+
+
+### BREAKING CHANGES
+
+* the artifact is now compiled for Java 21, up from Java 17, and
+requires a Java 21 runtime or later.
+
+https://gravitee.atlassian.net/browse/BX-403
+
 # [3.1.0](https://github.com/gravitee-io/gravitee-secret-api/compare/3.0.0...3.1.0) (2026-09-18)
 
 
