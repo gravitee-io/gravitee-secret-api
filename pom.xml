@@ -38,7 +38,7 @@
         <gravitee-common.version>4.9.1</gravitee-common.version>
         <!-- Third party -->
         <awaitability.version>4.3.0</awaitability.version>
-        <guava.version>32.1.3-jre</guava.version>
+        <guava.version>33.7.1-jre</guava.version>
         <!-- Plugin -->
         <gravitee-expression-language.version>4.6.0</gravitee-expression-language.version>
     </properties>
