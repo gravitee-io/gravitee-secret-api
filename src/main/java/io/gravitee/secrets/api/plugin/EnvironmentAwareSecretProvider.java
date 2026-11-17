@@ -23,9 +23,6 @@ import io.reactivex.rxjava3.core.Maybe;
 /**
  * A secret provider that the node declares as a bean, instead of a plugin configured in gravitee.yml. The secrets
  * service registers it for every environment, and passes the environment of the caller on each resolve.
- * <p>
- * It is a separate type from {@link SecretProvider} so that a provider plugin can never be called without an
- * environment, and an environment-aware provider can never be called with one taken from a reference.
  */
 public interface EnvironmentAwareSecretProvider {
     /**
