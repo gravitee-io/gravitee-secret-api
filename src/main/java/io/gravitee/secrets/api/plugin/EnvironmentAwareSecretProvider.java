@@ -38,7 +38,8 @@ public interface EnvironmentAwareSecretProvider {
      * returned, even when another environment holds a secret with the same path.
      * Any errors are inheritors of {@link SecretManagerException} and signaled in the Maybe.
      *
-     * @param environmentId the environment of the caller, set by the secrets service and never by the reference
+     * @param environmentId the environment of the caller, set by the secrets service and never by the reference. When it
+     *                      is null or blank, return {@link Maybe#empty()} or an error, never a secret of any environment
      * @param secretURL where the secret is located
      * @return a secret map (all keys of a secret)
      */
