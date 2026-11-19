@@ -17,6 +17,7 @@ package io.gravitee.secrets.api.spec;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import io.gravitee.secrets.api.core.SecretURL;
 import io.gravitee.secrets.api.el.FieldKind;
 import java.time.Duration;
 import java.util.List;
@@ -176,5 +177,28 @@ class SecretSpecTest {
         Assertions.assertThat(spec.toSecretURL().query().asMap())
             .containsEntry("reloadOnChange", List.of("true"))
             .containsEntry("renewable", List.of("true"));
+    }
+
+    @Test
+    void should_carry_the_bound_environment_to_the_url_of_an_env_bound_spec() {
+        SecretSpec spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", false, false, true);
+
+        Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz?envId=dev");
+        Assertions.assertThat(spec.toSecretURL().query().asMap()).containsEntry(SecretURL.WellKnownQueryParam.ENV_ID, List.of("dev"));
+    }
+
+    @Test
+    void should_keep_the_other_params_before_the_bound_environment() {
+        SecretSpec spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", true, true, true);
+
+        Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz?renewable=true&reloadOnChange=true&envId=dev");
+    }
+
+    @Test
+    void should_not_bind_a_spec_created_without_the_bound_flag() {
+        SecretSpec spec = new SecretSpec(null, null, "/foo/bar", "baz", STATIC_KEY, GENERATED, null, null, null, "dev", false, false);
+
+        Assertions.assertThat(spec.envBound()).isFalse();
+        Assertions.assertThat(spec.uriAndKeyAndParams()).isEqualTo("/foo/bar:baz");
     }
 }

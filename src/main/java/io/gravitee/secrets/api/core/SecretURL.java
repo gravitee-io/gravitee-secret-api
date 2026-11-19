@@ -222,6 +222,11 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
         public static final String KEYMAP = "keymap";
         public static final String NAMESPACE = "namespace";
         public static final String RESOLVE_BEFORE_WATCH = "resolveBeforeWatch";
+        /**
+         * The environment a reference is bound to. The secrets service refuses the reference outside that environment, and
+         * passes it on to the provider.
+         */
+        public static final String ENV_ID = "envId";
     }
 
     /**
