@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
  * @param envId           mandatory environment ID in which this definition applies
  * @param publishEventOnValueChanged  if true, the secret will trigger a {@link SecretDiscoveryEventType#VALUE_CHANGED} event of the definition when it's value changes.
  * @param renewable       if true, the secret can be renewed by `renewal.enabled` configuration
- * @param envBound        if true, the reference named <code>envId</code> as its environment, and the URL given to the provider carries it
+ * @param envBound        if true, the reference is bound to <code>envId</code>, and the URL given to the provider carries it as the <code>envId</code> query param
  * @author Benoit BORDIGONI (benoit.bordigoni at graviteesource.com)
  * @author GraviteeSource Team
  * @see Resolution
@@ -122,10 +122,27 @@ public record SecretSpec(
         if (name != null) {
             assertName(name);
         }
+        if (carriesEnvIdParam(uri) || (key != null && carriesEnvIdParam(key))) {
+            throw new IllegalArgumentException("uri and key must not carry an '%s' param".formatted(SecretURL.WellKnownQueryParam.ENV_ID));
+        }
+        if (envBound) {
+            ok = uri.indexOf('?') < 0 && (key == null || key.indexOf('?') < 0);
+            if (!ok) {
+                throw new IllegalArgumentException("uri and key of an env-bound spec must not contain '?'");
+            }
+            ok = envId.chars().noneMatch(c -> Character.isWhitespace(c) || "?&=#".indexOf(c) >= 0);
+            if (!ok) {
+                throw new IllegalArgumentException("envId of an env-bound spec must not contain '?', '&', '=', '#' or spaces");
+            }
+        }
+    }
+
+    private static boolean carriesEnvIdParam(String value) {
+        return value.contains("?" + SecretURL.WellKnownQueryParam.ENV_ID) || value.contains("&" + SecretURL.WellKnownQueryParam.ENV_ID);
     }
 
     /**
-     * Return uri and key concatenated as specified in {@link SecretSpec#formatUriAndKeyAndParams(String, String, boolean, boolean)}
+     * Return uri and key concatenated as specified in {@link SecretSpec#formatUriAndKeyAndParams(String, String, boolean, boolean, String)}
      * @return a string concat of uri and key
      */
     public String uriAndKeyAndParams() {
