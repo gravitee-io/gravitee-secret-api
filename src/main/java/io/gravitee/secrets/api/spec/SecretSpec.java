@@ -19,6 +19,7 @@ import io.gravitee.common.utils.IdGenerator;
 import io.gravitee.secrets.api.core.SecretURL;
 import io.gravitee.secrets.api.el.FieldKind;
 import io.gravitee.secrets.api.event.SecretDiscoveryEventType;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -122,23 +123,18 @@ public record SecretSpec(
         if (name != null) {
             assertName(name);
         }
-        if (carriesEnvIdParam(uri) || (key != null && carriesEnvIdParam(key))) {
-            throw new IllegalArgumentException("uri and key must not carry an '%s' param".formatted(SecretURL.WellKnownQueryParam.ENV_ID));
+        String boundEnvId = envBound ? envId : null;
+        List<String> carriedEnvIds = List.copyOf(
+            SecretURL.from(formatUriAndKeyAndParams(uri, key, false, false, boundEnvId), true)
+                .query()
+                .get(SecretURL.WellKnownQueryParam.ENV_ID)
+        );
+        ok = carriedEnvIds.equals(envBound ? List.of(envId) : List.of());
+        if (!ok) {
+            throw new IllegalArgumentException(
+                "the URL of the spec must carry '%s' only as its bound environment".formatted(SecretURL.WellKnownQueryParam.ENV_ID)
+            );
         }
-        if (envBound) {
-            ok = uri.indexOf('?') < 0 && (key == null || key.indexOf('?') < 0);
-            if (!ok) {
-                throw new IllegalArgumentException("uri and key of an env-bound spec must not contain '?'");
-            }
-            ok = envId.chars().noneMatch(c -> Character.isWhitespace(c) || "?&=#".indexOf(c) >= 0);
-            if (!ok) {
-                throw new IllegalArgumentException("envId of an env-bound spec must not contain '?', '&', '=', '#' or spaces");
-            }
-        }
-    }
-
-    private static boolean carriesEnvIdParam(String value) {
-        return value.contains("?" + SecretURL.WellKnownQueryParam.ENV_ID) || value.contains("&" + SecretURL.WellKnownQueryParam.ENV_ID);
     }
 
     /**

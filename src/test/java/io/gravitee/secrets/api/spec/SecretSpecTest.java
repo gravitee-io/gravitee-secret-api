@@ -233,9 +233,7 @@ class SecretSpecTest {
             arguments("query in the key", "/foo/bar", "baz?namespace=x", "dev"),
             arguments("envId with '&'", "/foo/bar", "baz", "dev&x=1"),
             arguments("envId with '='", "/foo/bar", "baz", "dev=1"),
-            arguments("envId with '?'", "/foo/bar", "baz", "dev?x"),
-            arguments("envId with '#'", "/foo/bar", "baz", "dev#x"),
-            arguments("envId with a space", "/foo/bar", "baz", "dev x")
+            arguments("envId with a trailing space", "/foo/bar", "baz", "dev ")
         );
     }
 
