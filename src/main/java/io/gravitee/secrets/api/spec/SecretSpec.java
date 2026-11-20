@@ -19,6 +19,7 @@ import io.gravitee.common.utils.IdGenerator;
 import io.gravitee.secrets.api.core.SecretURL;
 import io.gravitee.secrets.api.el.FieldKind;
 import io.gravitee.secrets.api.event.SecretDiscoveryEventType;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import org.springframework.util.StringUtils;
  * @param envId           mandatory environment ID in which this definition applies
  * @param publishEventOnValueChanged  if true, the secret will trigger a {@link SecretDiscoveryEventType#VALUE_CHANGED} event of the definition when it's value changes.
  * @param renewable       if true, the secret can be renewed by `renewal.enabled` configuration
+ * @param envBound        if true, the reference is bound to <code>envId</code>, and the URL given to the provider carries it as the <code>envId</code> query param
  * @author Benoit BORDIGONI (benoit.bordigoni at graviteesource.com)
  * @author GraviteeSource Team
  * @see Resolution
@@ -63,8 +65,40 @@ public record SecretSpec(
     ACLs acls,
     String envId,
     boolean publishEventOnValueChanged,
-    boolean renewable
+    boolean renewable,
+    boolean envBound
 ) {
+    public SecretSpec(
+        String id,
+        String name,
+        String uri,
+        String key,
+        boolean isELKey,
+        boolean isGenerated,
+        Resolution resolution,
+        OnErrorStrategy onErrorStrategy,
+        ACLs acls,
+        String envId,
+        boolean publishEventOnValueChanged,
+        boolean renewable
+    ) {
+        this(
+            id,
+            name,
+            uri,
+            key,
+            isELKey,
+            isGenerated,
+            resolution,
+            onErrorStrategy,
+            acls,
+            envId,
+            publishEventOnValueChanged,
+            renewable,
+            false
+        );
+    }
+
     public SecretSpec {
         boolean ok = isGenerated ^ StringUtils.hasText(id);
         if (!ok) {
@@ -89,14 +123,26 @@ public record SecretSpec(
         if (name != null) {
             assertName(name);
         }
+        String boundEnvId = envBound ? envId : null;
+        List<String> carriedEnvIds = List.copyOf(
+            SecretURL.from(formatUriAndKeyAndParams(uri, key, false, false, boundEnvId), true)
+                .query()
+                .get(SecretURL.WellKnownQueryParam.ENV_ID)
+        );
+        ok = carriedEnvIds.equals(envBound ? List.of(envId) : List.of());
+        if (!ok) {
+            throw new IllegalArgumentException(
+                "the URL of the spec must carry '%s' only as its bound environment".formatted(SecretURL.WellKnownQueryParam.ENV_ID)
+            );
+        }
     }
 
     /**
-     * Return uri and key concatenated as specified in {@link SecretSpec#formatUriAndKeyAndParams(String, String, boolean, boolean)}
+     * Return uri and key concatenated as specified in {@link SecretSpec#formatUriAndKeyAndParams(String, String, boolean, boolean, String)}
      * @return a string concat of uri and key
      */
     public String uriAndKeyAndParams() {
-        return formatUriAndKeyAndParams(uri, key, renewable, publishEventOnValueChanged);
+        return formatUriAndKeyAndParams(uri, key, renewable, publishEventOnValueChanged, envBound ? envId : null);
     }
 
     /**
@@ -161,6 +207,20 @@ public record SecretSpec(
      * @return main uri and optionally key concat with {@link SecretURL#URI_KEY_SEPARATOR}
      */
     public static String formatUriAndKeyAndParams(String uri, String key, boolean renewable, boolean publishEventOnValueChanged) {
+        return formatUriAndKeyAndParams(uri, key, renewable, publishEventOnValueChanged, null);
+    }
+
+    /**
+     * @param boundEnvId the environment the reference is bound to, or null when it is not bound
+     * @return main uri and optionally key concat with {@link SecretURL#URI_KEY_SEPARATOR}
+     */
+    public static String formatUriAndKeyAndParams(
+        String uri,
+        String key,
+        boolean renewable,
+        boolean publishEventOnValueChanged,
+        String boundEnvId
+    ) {
         String urikey = uri;
         StringBuilder params = new StringBuilder();
         if (renewable) {
@@ -170,6 +230,10 @@ public record SecretSpec(
         if (publishEventOnValueChanged) {
             params.append(params.isEmpty() ? "?" : "&");
             params.append("reloadOnChange=true");
+        }
+        if (boundEnvId != null) {
+            params.append(params.isEmpty() ? "?" : "&");
+            params.append(SecretURL.WellKnownQueryParam.ENV_ID).append("=").append(boundEnvId);
         }
         if (key != null) {
             urikey = urikey.concat(SecretURL.URI_KEY_SEPARATOR).concat(key);

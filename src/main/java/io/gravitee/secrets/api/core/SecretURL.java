@@ -222,6 +222,7 @@ public record SecretURL(String provider, String path, String key, Multimap<Strin
         public static final String KEYMAP = "keymap";
         public static final String NAMESPACE = "namespace";
         public static final String RESOLVE_BEFORE_WATCH = "resolveBeforeWatch";
+        public static final String ENV_ID = "envId";
     }
 
     /**
