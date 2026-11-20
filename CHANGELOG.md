@@ -1,3 +1,10 @@
+# [4.1.0](https://github.com/gravitee-io/gravitee-secret-api/compare/4.0.0...4.1.0) (2026-11-20)
+
+
+### Features
+
+* carry the environment a secret reference is bound to ([#40](https://github.com/gravitee-io/gravitee-secret-api/issues/40)) ([4990c16](https://github.com/gravitee-io/gravitee-secret-api/commit/4990c16860bf24645a3bbfe5ed9522f91f7bc75f))
+
 # [4.0.0](https://github.com/gravitee-io/gravitee-secret-api/compare/3.1.0...4.0.0) (2026-09-21)
 
 
