@@ -1,3 +1,10 @@
+# [4.2.0](https://github.com/gravitee-io/gravitee-secret-api/compare/4.1.0...4.2.0) (2026-11-23)
+
+
+### Features
+
+* add an event to invalidate the cached values of a secret ([#43](https://github.com/gravitee-io/gravitee-secret-api/issues/43)) ([adcd7e6](https://github.com/gravitee-io/gravitee-secret-api/commit/adcd7e6ebe4339480b40715043d48a3872c66117))
+
 # [4.1.0](https://github.com/gravitee-io/gravitee-secret-api/compare/4.0.0...4.1.0) (2026-11-20)
 
 
